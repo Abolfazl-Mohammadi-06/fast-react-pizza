@@ -47,4 +47,4 @@ function App() {
 }
 
 export default App;
-//E 11 was finished ;)
+//E 10 was finished ;)

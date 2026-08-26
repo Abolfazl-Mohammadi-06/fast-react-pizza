@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Form, redirect, useActionData, useNavigate, useNavigation } from "react-router-dom";
-import { createOrder } from "../../services/apiRestaurant.js";
+import {useState} from "react";
+import {Form, redirect, useActionData, useNavigate, useNavigation} from "react-router-dom";
+import {createOrder} from "../../services/apiRestaurant.js";
 import Button from "../../ui/Button.jsx";
+import {useSelector} from "react-redux";
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) => /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(str);
@@ -31,9 +32,9 @@ const fakeCart = [
 ];
 
 function CreateOrder() {
+    const username = useSelector(state => state.user.username);
     const navigation = useNavigation();
     const isSubmitting = navigation.state === "submitting";
-
     const formErrors = useActionData();
 
     // const [withPriority, setWithPriority] = useState(false);
@@ -47,13 +48,13 @@ function CreateOrder() {
             <Form method="POST">
                 <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
                     <label className="sm:basis-40">First Name</label>
-                    <input className="input grow" type="text" name="customer" required />
+                    <input className="input grow" type="text" name="customer" defaultValue={username} required/>
                 </div>
 
                 <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
                     <label className="sm:basis-40">Phone number</label>
                     <div className="grow">
-                        <input className="input w-full" type="tel" name="phone" required />
+                        <input className="input w-full" type="tel" name="phone" required/>
                         {formErrors?.phone && (
                             <p className="mt-2 rounded-2xl bg-red-100 p-2 text-xs text-red-700">{formErrors.phone}</p>
                         )}
@@ -63,7 +64,7 @@ function CreateOrder() {
                 <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
                     <label className="sm:basis-40">Address</label>
                     <div className="grow">
-                        <input className="input w-full" type="text" name="address" required />
+                        <input className="input w-full" type="text" name="address" required/>
                     </div>
                 </div>
 
@@ -82,7 +83,7 @@ function CreateOrder() {
                 </div>
 
                 <div>
-                    <input type="hidden" name="cart" value={JSON.stringify(cart)} />
+                    <input type="hidden" name="cart" value={JSON.stringify(cart)}/>
                     <Button type="primary" disabled={isSubmitting}>
                         {isSubmitting ? "Placing order..." : "Order now"}
                     </Button>
@@ -92,7 +93,7 @@ function CreateOrder() {
     );
 }
 
-export async function action({ request }) {
+export async function action({request}) {
     const formData = await request.formData();
     const data = Object.fromEntries(formData);
 

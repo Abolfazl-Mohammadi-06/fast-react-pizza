@@ -1,17 +1,24 @@
 // Test ID: IIDSAT
 
-import { calcMinutesLeft, formatCurrency, formatDate } from "../../utils/helpers";
-import { getOrder } from "../../services/apiRestaurant.js";
-import { useLoaderData } from "react-router-dom";
+import {calcMinutesLeft, formatCurrency, formatDate} from "../../utils/helpers";
+import {getOrder} from "../../services/apiRestaurant.js";
+import {useFetcher, useLoaderData} from "react-router-dom";
 import OrderItem from "./OrderItem.jsx";
+import {useEffect} from "react";
 
 function Order() {
     const order = useLoaderData();
 
+    const fetcher = useFetcher();
+    useEffect(function () {
+        if (!fetcher.data && fetcher.state === 'idle')
+            fetcher.load('/menu')
+    }, [fetcher]);
+
     // Everyone can search for all orders,
     // so for privacy reasons we're gonna gonna exclude names or address,
     // these are only for the restaurant staff
-    const { id, status, priority, priorityPrice, orderPrice, estimatedDelivery, cart } = order;
+    const {id, status, priority, priorityPrice, orderPrice, estimatedDelivery, cart} = order;
     const deliveryIn = calcMinutesLeft(estimatedDelivery);
 
     return (
@@ -21,11 +28,13 @@ function Order() {
 
                 <div className="space-x-2">
                     {priority && (
-                        <span className="rounded-full bg-red-500 px-3 py-1 text-sm font-semibold uppercase tracking-wide text-red-50">
+                        <span
+                            className="rounded-full bg-red-500 px-3 py-1 text-sm font-semibold uppercase tracking-wide text-red-50">
                             Priority
                         </span>
                     )}
-                    <span className="rounded-full bg-green-500 px-3 py-1 text-sm font-semibold uppercase tracking-wide text-green-50">
+                    <span
+                        className="rounded-full bg-green-500 px-3 py-1 text-sm font-semibold uppercase tracking-wide text-green-50">
                         {" "}
                         {status} order
                     </span>
@@ -43,7 +52,9 @@ function Order() {
 
             <ul className="divide-y divide-stone-200 border-b border-t">
                 {cart.map((item) => (
-                    <OrderItem key={item.id ? item.id : item.name} item={item} />
+                    <OrderItem isLoadingIngredients={fetcher.state === "loading"}
+                               ingredients={fetcher?.data?.find(el => el.id === item.pizzaId)?.ingredients??[]}
+                               key={item.id ? item.id : item.name} item={item}/>
                 ))}
             </ul>
 
@@ -62,7 +73,7 @@ function Order() {
     );
 }
 
-export async function loader({ params }) {
+export async function loader({params}) {
     const order = await getOrder(params.orderId);
     return order;
 }

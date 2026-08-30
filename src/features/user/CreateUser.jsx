@@ -1,7 +1,7 @@
 import {useState} from "react";
 import Button from "../../ui/Button.jsx";
 import {useDispatch} from "react-redux";
-import {updateName} from "../../tempel/userSlice.js";
+import {updateName} from "./userSlice.js";
 import {useNavigate} from "react-router-dom";
 
 function CreateUser() {
